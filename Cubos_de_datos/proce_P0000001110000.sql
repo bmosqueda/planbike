@@ -3,11 +3,11 @@ BEGIN
   INSERT INTO P0000001110000
   SELECT
     -- Sugerir usar alias aquí
-    YEAR(rb.Fecha_Retiro),
-    MONTH(rb.Fecha_Retiro),
-    DAY(rb.Fecha_Retiro),
+    YEAR(bicis.Fecha_Retiro) AS anio,
+    MONTH(bicis.Fecha_Retiro) AS mes,
+    DAY(bicis.Fecha_Retiro) AS dia,
     -- No es el promedio, es el número de registros
-    COUNT(rb.idRegistroBicis) AS promedio
+    COUNT(bicis.idRegistroBicis) AS num_registros
   FROM (
     SELECT * FROM NombreTablaTemporal
     WHERE esta_dentro_horario_valido(
@@ -16,17 +16,9 @@ BEGIN
             Fecha_Retiro, 
             Fecha_Arribo
           )
-          -- Encapsulado en una función
-          -- Hora_Retiro >= '05:00:00' OR 
-          -- Hora_Retiro <= '00:30:00' AND
-          -- TIMESTAMP(Fecha_Arribo, Hora_Arribo) > 
-          -- DATE_ADD(
-          --   TIMESTAMP(Fecha_Retiro, Hora_Retiro), 
-          --   INTERVAL 2 MINUTE
-          -- )
-  ) AS rb
+  ) AS bicis
   GROUP BY anio, mes, dia;
       
   INSERT INTO Bitacora_Cubos(Tabla, Accion, Fecha_Hora)
-    VALUES('P0000001110000', 'Actualizado', NOW());    
+  VALUES('P0000001110000', 'Actualizado', NOW());    
 END;
