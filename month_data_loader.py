@@ -17,25 +17,32 @@ ARRIVAL_STATION_INDEX = 6
 ARRIVAL_DATE_INDEX = 7
 ARRIVAL_HOUR_INDEX = 8
 
-with open(read_path + file_name) as csv_file:
-  csv_reader = csv.reader(csv_file, delimiter = ',')
-  line_count = 0
-
+def load_month(month_file_name):
   lines = []
 
-  for row in csv_reader:
-    line_count += 1
-    # Metadata line
-    if(line_count == 1):
-      continue
+  with open(read_path + month_file_name) as csv_file:
+    csv_reader = csv.reader(csv_file, delimiter = ',')
+    line_count = 0
 
-    row[ ARRIVAL_DATE_INDEX ] = date_to_mysql_format(row[ ARRIVAL_DATE_INDEX ])
-    row[ REMOVAL_DATE_INDEX ] = date_to_mysql_format(row[ REMOVAL_DATE_INDEX ])
-    lines.append(row)
-    print(row)
+    for row in csv_reader:
+      line_count += 1
+      # Metadata line
+      if(line_count == 1):
+        continue
 
-  with open(write_path + file_name, 'w') as writeFile:
+      try: 
+        row[ ARRIVAL_DATE_INDEX ] = date_to_mysql_format(row[ ARRIVAL_DATE_INDEX ])
+        row[ REMOVAL_DATE_INDEX ] = date_to_mysql_format(row[ REMOVAL_DATE_INDEX ])
+        lines.append(row)
+
+      except Exception as error:
+        print(error)
+        print(row)
+
+  with open(write_path + month_file_name, 'w') as writeFile:
     writer = csv.writer(writeFile)
     writer.writerows(lines)
 
-print(f'Processed {line_count} lines')
+  print(f'Processed {line_count} lines')
+
+load_month('2019-02.csv')
