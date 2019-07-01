@@ -1,8 +1,5 @@
+from validator import is_match
 import re
-
-def is_match(regex, text):
-    pattern = re.compile(regex)
-    return pattern.search(text) is not None
 
 def is_in_correct_format(date):
   # yyyy-mm-dd

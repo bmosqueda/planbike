@@ -7,6 +7,7 @@ sys.path.append(paths.models)
 from database import Database
 from bicycle_trips import BicycleTrip
 from station import Station
+import validator
 
 bicycle_controller = BicycleTrip()
 station_controller = Station()
@@ -47,10 +48,9 @@ props = (
       'Genero_Usuario'
     )
 
-try:
-  result = bicycle_controller.insert(trip_dic)
-  # print(result.__dict__)
-  print("All right")
-  print(bicycle_controller.get_by_primary_key(result._insert_id))
-except Exception as error:
-  print(error)
+def func():
+  print("Yo soy funct")
+
+a = func
+
+a()
