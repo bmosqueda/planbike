@@ -68,6 +68,6 @@ val = Validator(rules)
 # except Exception as error:
 #   print(error)
 #   print(val.result)
-hola = [2]
+hola = [2, 3, 3]
 
-print(len(hola))
+print(hola[:2])

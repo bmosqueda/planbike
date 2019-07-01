@@ -1,13 +1,20 @@
 import csv
 import paths
+import time
 import sys
+
 sys.path.append(paths.utils)
+sys.path.append(paths.models)
+
 from date_to_mysql_format import date_to_mysql_format
 from date_to_mysql_format import DateFormatException
 from validator import Validator
 from validator import ValidationException
+from bicycle_trips import BicycleTrip
 
-file_name = '2010-02-test.csv'
+trips_controller = BicycleTrip()
+
+file_name = '2019-03.csv'
 read_path = '/home/bmosqueda/Downloads/BIKE/Resources/Datasets/'
 write_path = '/home/bmosqueda/Downloads/BIKE/Resources/Datasets/formated/'
 
@@ -47,15 +54,20 @@ def row_to_dictionary(row):
   }
 
 def load_month(month_file_name):
-  lines = []
+  data = []
   bad_lines = []
 
   with open(read_path + month_file_name) as csv_file:
     csv_reader = csv.reader(csv_file, delimiter = ',')
+    files_to_insert = 0
     line_count = 0
 
     for row in csv_reader:
       line_count += 1
+      files_to_insert += 1
+      
+      if(len(row) > 9):
+        row = row[:9]
       # Metadata line
       if(line_count == 1):
         continue
@@ -64,9 +76,16 @@ def load_month(month_file_name):
         row[ ARRIVAL_DATE_INDEX ] = date_to_mysql_format(row[ ARRIVAL_DATE_INDEX ])
         row[ REMOVAL_DATE_INDEX ] = date_to_mysql_format(row[ REMOVAL_DATE_INDEX ])
 
-        validator.validate(row_to_dictionary(row))
+        data_dictionary = row_to_dictionary(row)
 
-        lines.append(row)
+        validator.validate(data_dictionary)
+
+        data.append(tuple(row))
+        
+        if(files_to_insert == 100000):
+          trips_controller.insert_many_from_csv(data)
+          data = []
+          files_to_insert = 0
 
       except DateFormatException as error:
         print(line_count)
@@ -81,9 +100,9 @@ def load_month(month_file_name):
         bad_lines.append(row)
         print(validator.result)
 
-  with open(write_path + month_file_name, 'w') as writeFile:
-    writer = csv.writer(writeFile)
-    writer.writerows(lines)
+    # Faltaron algunos por insertarse
+    if(len(data) > 0):
+      trips_controller.insert_many_from_csv(data)
 
   if(len(bad_lines) > 0):
     with open(write_path + 'errors-' + month_file_name, 'w') as writeFile:
@@ -92,4 +111,9 @@ def load_month(month_file_name):
 
   print(f'Processed {line_count} lines')
 
+start = time.time()
 load_month(file_name)
+
+# Normal: 92.90293884277344
+# Many: 0.4874138832092285
+print(time.time() - start)

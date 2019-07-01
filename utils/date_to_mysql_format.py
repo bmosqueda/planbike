@@ -6,6 +6,9 @@ class DateFormatException(Exception):
 
 # dd/mm/yyyy  ->  yyyy-mm-dd
 def date_to_mysql_format(date):
+  if(len(date) != 10):
+    raise DateFormatException('Not valid date, it does not have 10 length')
+
   if(is_date_in_mysql_format(date)):
     return date
 

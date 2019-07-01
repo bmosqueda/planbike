@@ -39,7 +39,6 @@ def is_date_in_mysql_format(date):
   date = str(date)
   # yyyy-mm-dd
   valid_format_regex = '^[0-9]{4}-[0-9]{2}-[0-9]{2}$'
-
   return is_match(valid_format_regex, date)
 
 def is_hour_in_mysql_format(hour):
