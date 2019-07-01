@@ -53,9 +53,11 @@ class Database:
 
     if(type(data) == dict):
       data = formatter.dictionary_to_tuple(data, self.props)
-    
-    if(type(data) == list):
+    elif(type(data) == list):
       data = tuple(data)
 
     cursor = self.query(sql, data)
+
+    self.connector.commit()
+    
     return cursor

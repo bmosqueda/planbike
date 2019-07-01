@@ -12,14 +12,14 @@ bicycle_controller = BicycleTrip()
 station_controller = Station()
 
 trip_dic = {
-  'Genero_Usuario': 'F',
+  'Fecha_Retiro': '2015-05-24',
   'Edad_Usuario': 15,
   'Bici': 1656,
+  'Genero_Usuario': 'F',
   'Ciclo_Estacion_Retiro': 66,
-  'Fecha_Retiro': '2015-05-24',
-  'Hora_Retiro': '08:10:06',
-  'Ciclo_Estacion_Arribo': 22,
   'Fecha_Arribo': '2015-05-24',
+  'Ciclo_Estacion_Arribo': 22,
+  'Hora_Retiro': '08:10:06',
   'Hora_Arribo': '08:50:04'
 }
 
@@ -48,7 +48,7 @@ props = (
     )
 
 try:
-  result = bicycle_controller.insert(trip_tuple)
+  result = bicycle_controller.insert(trip_dic)
   # print(result.__dict__)
   print("All right")
   print(bicycle_controller.get_by_primary_key(result._insert_id))
