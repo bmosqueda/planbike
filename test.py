@@ -7,10 +7,12 @@ sys.path.append(paths.models)
 from database import Database
 from bicycle_trips import BicycleTrip
 from station import Station
-import validator
+from validator import Validator
 
 bicycle_controller = BicycleTrip()
 station_controller = Station()
+
+# print(bicycle_controller.get_by_primary_key(3))
 
 trip_dic = {
   'Fecha_Retiro': '2015-05-24',
@@ -48,9 +50,24 @@ props = (
       'Genero_Usuario'
     )
 
-def func():
-  print("Yo soy funct")
+rules = {
+  'Fecha_Retiro': 'is_date_in_mysql_format',  
+  'Bici': 'is_required|max_length,5'  
+}
 
-a = func
+data = {
+  'Fecha_Retiro': 30,
+  'Bici': 'hola mund'
+}
 
-a()
+val = Validator(rules)
+
+# try:
+#   val.validate(data)
+#   print("No hay errores :D")
+# except Exception as error:
+#   print(error)
+#   print(val.result)
+
+print(float(False))
+print(len(5))
