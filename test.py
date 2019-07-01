@@ -68,6 +68,6 @@ val = Validator(rules)
 # except Exception as error:
 #   print(error)
 #   print(val.result)
+hola = [2]
 
-print(float(False))
-print(len(5))
+print(len(hola))

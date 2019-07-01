@@ -103,5 +103,17 @@ class TestStringMethods(unittest.TestCase):
     self.assertFalse(validator.has_exact_length(10, 'nada de nada'))
     self.assertFalse(validator.has_exact_length(10, False))
 
+  def test_is_hour_in_mysql_format(self):
+    self.assertTrue(validator.is_hour_in_mysql_format('15:10:32'))
+    self.assertTrue(validator.is_hour_in_mysql_format('15:10:32.23'))
+    self.assertTrue(validator.is_hour_in_mysql_format('15:10:32.23004'))
+    self.assertTrue(validator.is_hour_in_mysql_format('15:10:32.230046'))
+
+    self.assertFalse(validator.is_hour_in_mysql_format('15:10:32.2'))
+    self.assertFalse(validator.is_hour_in_mysql_format('15:10:32.20300454'))
+    self.assertFalse(validator.is_hour_in_mysql_format('15:10:325'))
+    self.assertFalse(validator.is_hour_in_mysql_format('15:105:325'))
+    self.assertFalse(validator.is_hour_in_mysql_format(6565))
+
 if __name__ == '__main__':
     unittest.main()

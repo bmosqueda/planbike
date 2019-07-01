@@ -42,6 +42,15 @@ def is_date_in_mysql_format(date):
 
   return is_match(valid_format_regex, date)
 
+def is_hour_in_mysql_format(hour):
+  if(hour is None):
+    return True
+
+  hour = str(hour)
+  # yyyy-mm-dd
+  valid_format_regex = '^[0-9]{2}:[0-9]{2}:[0-9]{2}(\.[0-9]{2,6})?$'
+  return is_match(valid_format_regex, hour)
+
 def min_value(minimum, value):
   if(not is_number(minimum) or not is_number(value)):
     return False
@@ -95,6 +104,9 @@ def has_exact_length(length, text):
 
   return len(str(text)) == int(length)
 
+class ValidationException(Exception):
+  pass
+
 class Validator:
   def __init__(self, rules):
     self.rules = rules
@@ -107,10 +119,11 @@ class Validator:
       'max_value': '{} debe ser menor o igual a {}',
       'is_between_value': '{} debe estar entre {} y {}',
       'is_date_in_mysql_format': '{} debe tener el formato de fecha yyyy-mm-dd',
+      'is_hour_in_mysql_format': '{} debe tener el formato de hora hh:mm:ss[.ss[ssss]]',
       'is_match': '{} no cumple {}',
       'min_length': '{} debe de tener por lo menos {} caracteres',
       'max_length': '{} debe de tener máximo {} caracteres',
-      'exact_length': '{} debe tener exactamente {} caracteres',
+      'has_exact_length': '{} debe tener exactamente {} caracteres',
       'is_required ': '{} es requerido'
     }
 
@@ -121,6 +134,7 @@ class Validator:
       'max_value': max_value,
       'is_between_value': is_between_value,
       'is_date_in_mysql_format': is_date_in_mysql_format,
+      'is_hour_in_mysql_format': is_hour_in_mysql_format,
       'is_match': is_match,
       'min_length': min_length,
       'max_length': max_length,
@@ -160,4 +174,4 @@ class Validator:
             self.result.append(self.errors[ rule ].format(field))
 
     if(len(self.result) > 0):
-      raise Exception('There are some errors, look at result property to see them')
+      raise ValidationException('There are some errors, look at result property to see them')
