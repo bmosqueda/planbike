@@ -30,7 +30,6 @@ class BicycleTrip(Database):
                Hora_Arribo
              ) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)'''.format(self.table)
 
-
     cursor = self.connector.cursor(dictionary = True)
 
     cursor.executemany(sql, data)
@@ -38,4 +37,3 @@ class BicycleTrip(Database):
     self.connector.commit()
 
     return cursor
-

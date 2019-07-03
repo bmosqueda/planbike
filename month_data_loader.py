@@ -14,9 +14,13 @@ from bicycle_trips import BicycleTrip
 
 trips_controller = BicycleTrip()
 
+file_name = '2010-02.csv'
+file_name = '2010-02-test.csv'
 file_name = '2019-03.csv'
 read_path = '/home/bmosqueda/Downloads/BIKE/Resources/Datasets/'
 write_path = '/home/bmosqueda/Downloads/BIKE/Resources/Datasets/formated/'
+INSERTIONS_BY_CYCLE = 1000
+step = 1
 
 GENDER_INDEX = 0
 AGE_INDEX = 1
@@ -34,10 +38,10 @@ validator = Validator({
   'Bici': 'is_required|is_int',
   'Ciclo_Estacion_Retiro': 'is_required|is_int',
   'Fecha_Retiro': 'is_required|is_date_in_mysql_format',
-  'Hora_Retiro': 'is_required|is_hour_in_mysql_format',
+  'Hora_Retiro': 'is_required|is_hour_in_mysql_format|is_valid_hour',
   'Ciclo_Estacion_Arribo': 'is_required|is_int',
   'Fecha_Arribo': 'is_required|is_date_in_mysql_format',
-  'Hora_Arribo': 'is_required|is_hour_in_mysql_format'
+  'Hora_Arribo': 'is_required|is_hour_in_mysql_format|is_valid_hour'
 })
 
 def row_to_dictionary(row):
@@ -54,6 +58,9 @@ def row_to_dictionary(row):
   }
 
 def load_month(month_file_name):
+  global INSERTIONS_BY_CYCLE
+  global step
+
   data = []
   bad_lines = []
 
@@ -82,19 +89,22 @@ def load_month(month_file_name):
 
         data.append(tuple(row))
         
-        if(files_to_insert == 100000):
+        if(files_to_insert == INSERTIONS_BY_CYCLE):
           trips_controller.insert_many_from_csv(data)
           data = []
           files_to_insert = 0
+          # time.sleep(2)
+          print(INSERTIONS_BY_CYCLE * step)
+          step = step + 1
 
       except DateFormatException as error:
-        print(line_count)
+        print(f'ARRIVAL_DATE_INDEX: {row[ ARRIVAL_DATE_INDEX ]}')
+        print(f'REMOVAL_DATE_INDEX: {row[ REMOVAL_DATE_INDEX ]}')
         row.append(error)
         row.append(line_count)
         bad_lines.append(row)
         print(error)
       except ValidationException as error:
-        print(line_count)
         row.append(validator.result)
         row.append(line_count)
         bad_lines.append(row)
@@ -109,11 +119,11 @@ def load_month(month_file_name):
       writer = csv.writer(writeFile)
       writer.writerows(bad_lines)
 
-  print(f'Processed {line_count} lines')
+  print(f'Processed lines: {line_count}')
+  print(f'Bad lines: {len(bad_lines)}')
+  print(f'Good lines: {line_count - len(bad_lines)}')
 
 start = time.time()
 load_month(file_name)
 
-# Normal: 92.90293884277344
-# Many: 0.4874138832092285
-print(time.time() - start)
+print(f'Total time of execution: {time.time() - start}')

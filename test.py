@@ -1,5 +1,7 @@
 import paths
 import sys
+import time
+from datetime import datetime
 
 sys.path.append(paths.utils)
 sys.path.append(paths.models)
@@ -62,12 +64,7 @@ data = {
 
 val = Validator(rules)
 
-# try:
-#   val.validate(data)
-#   print("No hay errores :D")
-# except Exception as error:
-#   print(error)
-#   print(val.result)
-hola = [2, 3, 3]
+# x = datetime.strptime('2019-03-13', '%Y/%m/%d').date()
+x = datetime(2010, 2, 29)
 
-print(hola[:2])
+print(x.strftime('%Y-%m-%d'))

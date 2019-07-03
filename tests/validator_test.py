@@ -115,5 +115,16 @@ class TestStringMethods(unittest.TestCase):
     self.assertFalse(validator.is_hour_in_mysql_format('15:105:325'))
     self.assertFalse(validator.is_hour_in_mysql_format(6565))
 
+  def test_is_valid_hour(self):
+    self.assertTrue(validator.is_valid_hour('15:10:32'))
+    self.assertTrue(validator.is_valid_hour('23:59:59.99000'))
+    self.assertTrue(validator.is_valid_hour('00:00:00'))
+    self.assertTrue(validator.is_valid_hour('21:10:32.230046'))
+
+    self.assertFalse(validator.is_valid_hour('15:60:32.2'))
+    self.assertFalse(validator.is_valid_hour('20:10:60.59'))
+    self.assertFalse(validator.is_valid_hour('24:10:325'))
+    self.assertFalse(validator.is_valid_hour('15:105:325'))
+
 if __name__ == '__main__':
     unittest.main()

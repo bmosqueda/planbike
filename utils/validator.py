@@ -46,9 +46,26 @@ def is_hour_in_mysql_format(hour):
     return True
 
   hour = str(hour)
-  # yyyy-mm-dd
   valid_format_regex = '^[0-9]{2}:[0-9]{2}:[0-9]{2}(\.[0-9]{2,6})?$'
+
   return is_match(valid_format_regex, hour)
+
+def is_valid_hour(hour_string):
+  if(hour_string is None):
+    return True
+
+  hour_string = str(hour_string)
+  hour_list = hour_string.split(':')
+
+  hours = float(hour_list[0])
+  minutes = float(hour_list[1])
+  seconds = float(hour_list[2])
+
+  return (
+        hours >= 0 and hours <= 23 and
+        minutes >= 0 and minutes < 60 and
+        seconds >= 0 and seconds < 60
+      )
 
 def min_value(minimum, value):
   if(not is_number(minimum) or not is_number(value)):
@@ -112,18 +129,19 @@ class Validator:
     self.result = []
 
     self.errors = {
-      'is_number': '{} debe ser un número',
-      'is_int': '{} debe de ser un valor entero',
-      'min_value': '{} debe ser mayor o igual a {}',
-      'max_value': '{} debe ser menor o igual a {}',
-      'is_between_value': '{} debe estar entre {} y {}',
-      'is_date_in_mysql_format': '{} debe tener el formato de fecha yyyy-mm-dd',
-      'is_hour_in_mysql_format': '{} debe tener el formato de hora hh:mm:ss[.ss[ssss]]',
-      'is_match': '{} no cumple {}',
-      'min_length': '{} debe de tener por lo menos {} caracteres',
-      'max_length': '{} debe de tener máximo {} caracteres',
-      'has_exact_length': '{} debe tener exactamente {} caracteres',
-      'is_required ': '{} es requerido'
+      'is_number': '{} debe ser un número: {}',
+      'is_int': '{} debe de ser un valor entero: {}',
+      'min_value': '{} debe ser mayor o igual a {} : {}',
+      'max_value': '{} debe ser menor o igual a {} : {}',
+      'is_between_value': '{} debe estar entre {} y {} : {}',
+      'is_date_in_mysql_format': '{} debe tener el formato de fecha yyyy-mm-dd : {}',
+      'is_hour_in_mysql_format': '{} debe tener el formato de hora hh:mm:ss[.ss[ssss]] : {}',
+      'is_valid_hour': '{} no es una hora válida : {}',
+      'is_match': '{} no cumple {} : {}',
+      'min_length': '{} debe de tener por lo menos {} caracteres : {}',
+      'max_length': '{} debe de tener máximo {} caracteres : {}',
+      'has_exact_length': '{} debe tener exactamente {} caracteres : {}',
+      'is_required ': '{} es requerido: {}'
     }
 
     self.validators = {
@@ -134,6 +152,7 @@ class Validator:
       'is_between_value': is_between_value,
       'is_date_in_mysql_format': is_date_in_mysql_format,
       'is_hour_in_mysql_format': is_hour_in_mysql_format,
+      'is_valid_hour': is_valid_hour,
       'is_match': is_match,
       'min_length': min_length,
       'max_length': max_length,
@@ -167,10 +186,10 @@ class Validator:
           rule = rule[ 0 ]
 
           if(not self.validators[ rule ](param, data[ field ])):
-            self.result.append(self.errors[ rule ].format(field, param))
+            self.result.append(self.errors[ rule ].format(field, param, data[ field ]))
         else:
           if(not self.validators[ rule ](data[ field ])):
-            self.result.append(self.errors[ rule ].format(field))
+            self.result.append(self.errors[ rule ].format(field, data[ field ]))
 
     if(len(self.result) > 0):
       raise ValidationException('There are some errors, look at result property to see them')
