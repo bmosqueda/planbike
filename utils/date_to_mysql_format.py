@@ -1,6 +1,7 @@
 from validator import is_date_in_mysql_format
 from validator import is_int
 from validator import is_hour_in_mysql_format
+from datetime import datetime
 import re
 
 class DateFormatException(Exception):
@@ -11,30 +12,39 @@ def date_to_mysql_format(date):
   if(len(date) != 10):
     raise DateFormatException('Not valid date, it does not have 10 length')
 
-  if(is_date_in_mysql_format(date)):
-    if(is_valid_date(date)):
-      return date
-    else:
-      raise DateFormatException('{} is not a valid date'.format(date))
-  
-  date_list = split_date(date)
+  try:
+    date_list = split_date(date)
+    
+    if(len(date_list) != 3):
+      raise Exception('Not valid date')
 
-  corrected_date = (
-    date_list[ 0 ] + '-' +
-    date_list[ 1 ] + '-' +
-    date_list[ 2 ]
-  )
+    date_obj = datetime(int(date_list[ 0 ]), int(date_list[ 1 ]), int(date_list[ 2 ]))
 
-  if(not is_date_in_mysql_format(corrected_date)):
-    raise DateFormatException(
-            'It was not possible format date: {} to correct format. Result: {} '
-            .format(date, corrected_date)
-          )
+    return date_obj.strftime('%Y-%m-%d')
 
-  if(is_valid_date(corrected_date)):
-    return corrected_date
-  else:
-    raise DateFormatException('{} is not a valid date'.format(corrected_date))
+  except ValueError as error:
+    raise DateFormatException('Not valid values to that date')
+  except Exception as error:
+    raise DateFormatException(error)
+
+def split_date(date):
+  list_date = []
+  try:
+    list_date = date.split('-')
+      
+    if(len(list_date) != 3 ):
+      raise Exception("Not valid separator")
+
+  except Exception as error:
+    list_date = date.split('/')
+
+  # El año siempre va al principio
+  if(len(list_date[ 2 ]) == 4):
+    temp = list_date[ 0 ]
+    list_date[ 0 ] = list_date[ 2 ]
+    list_date[ 2 ] = temp
+
+  return list_date
 
 def is_valid_date(date):
   date = str(date)
@@ -86,20 +96,3 @@ def is_leap_year(year):
       return True
   else:  
     return False
-    
-def split_date(date):
-  list_date = []
-
-  try:
-    list_date = date.index('-')
-    
-  except Exception as error:
-    list_date = date.index('/')
-
-  # El año siempre va al principio
-  if(len(list_date[ 2 ]) == 4)
-    temp = list_date[ 0 ]
-    list_date[ 0 ] = list_date[ 2 ]
-    list_date[ 2 ] = temp
-
-  return list_date

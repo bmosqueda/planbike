@@ -19,7 +19,7 @@ file_name = '2010-02-test.csv'
 file_name = '2019-03.csv'
 read_path = '/home/bmosqueda/Downloads/BIKE/Resources/Datasets/'
 write_path = '/home/bmosqueda/Downloads/BIKE/Resources/Datasets/formated/'
-INSERTIONS_BY_CYCLE = 1000
+INSERTIONS_BY_CYCLE = 10000
 step = 1
 
 GENDER_INDEX = 0
@@ -83,9 +83,7 @@ def load_month(month_file_name):
         row[ ARRIVAL_DATE_INDEX ] = date_to_mysql_format(row[ ARRIVAL_DATE_INDEX ])
         row[ REMOVAL_DATE_INDEX ] = date_to_mysql_format(row[ REMOVAL_DATE_INDEX ])
 
-        data_dictionary = row_to_dictionary(row)
-
-        validator.validate(data_dictionary)
+        validator.validate(row_to_dictionary(row))
 
         data.append(tuple(row))
         
@@ -93,13 +91,10 @@ def load_month(month_file_name):
           trips_controller.insert_many_from_csv(data)
           data = []
           files_to_insert = 0
-          # time.sleep(2)
           print(INSERTIONS_BY_CYCLE * step)
           step = step + 1
 
       except DateFormatException as error:
-        print(f'ARRIVAL_DATE_INDEX: {row[ ARRIVAL_DATE_INDEX ]}')
-        print(f'REMOVAL_DATE_INDEX: {row[ REMOVAL_DATE_INDEX ]}')
         row.append(error)
         row.append(line_count)
         bad_lines.append(row)
@@ -124,6 +119,10 @@ def load_month(month_file_name):
   print(f'Good lines: {line_count - len(bad_lines)}')
 
 start = time.time()
-load_month(file_name)
+load_month('2019-01.csv')
+load_month('2019-02.csv')
+load_month('2019-03.csv')
 
 print(f'Total time of execution: {time.time() - start}')
+# 2019-03 de mil en mil: 200.23364353179932
+# 2019-03 de diez mil en diez mil: 175.82711815834045

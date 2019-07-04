@@ -65,6 +65,11 @@ data = {
 val = Validator(rules)
 
 # x = datetime.strptime('2019-03-13', '%Y/%m/%d').date()
-x = datetime(2010, 2, 29)
 
-print(x.strftime('%Y-%m-%d'))
+try:
+  x = datetime(2010, 2, 29)
+except Exception as error:
+  print("Hubo un error")
+  print(error)
+
+  print(type(error))

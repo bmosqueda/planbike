@@ -1,42 +1,108 @@
+DROP PROCEDURE IF EXISTS generate_dataset_year_to_planbike;
+
+CREATE PROCEDURE generate_dataset_year_to_planbike(new_year INT)
+BEGIN
+  SET @table_name = CONCAT('viajes_', new_year);
+
+  SET @delete_base_table_query = CONCAT(
+    'DROP TABLE IF EXISTS ', @table_name
+  );
+
+  CALL execute_drop_table_query(@delete_base_table_query);
+
+  SET @create_base_table_query = CONCAT(
+    'CREATE TABLE ', @table_name, ' AS 
+      SELECT * FROM registrobicis 
+      WHERE YEAR(Fecha_Retiro) = ', new_year
+  );
+
+  CALL execute_create_table_query(@create_base_table_query);
+
+  SET @table_origin = CONCAT('
+    SELECT idRegistroBicis AS IDRegistro,
+           Genero_Usuario AS `Género`,
+           Edad_Usuario AS `Edad`,
+           Bici AS `Bici`,
+           Ciclo_Estacion_Retiro AS `Estación`,
+           Fecha_Retiro AS `Fecha`,
+           Hora_Retiro AS `Hora`,
+
+           \'Origen\' AS TipoRuta,
+           
+           CONCAT(Ciclo_Estacion_Retiro, \'_\', Ciclo_Estacion_Arribo) AS Ruta,
+
+           TIME(
+             TIMEDIFF(
+               CONCAT(Fecha_Arribo, \' \', Hora_Arribo),
+               CONCAT(Fecha_Retiro, \' \', Hora_Retiro)
+             )
+           ) AS Tiempo
+    FROM ', @table_name
+  );
+
+  SET @table_destiny = CONCAT('
+    SELECT idRegistroBicis AS IDRegistro,
+           Genero_Usuario AS `Género`,
+           Edad_Usuario AS `Edad`,
+           Bici AS `Bici`,
+           Ciclo_Estacion_Arribo AS `Estación`,
+           Fecha_Arribo AS `Fecha`,
+           Hora_Arribo AS `Hora`,
+
+           \'Destino\' AS TipoRuta,
+           
+           CONCAT(Ciclo_Estacion_Retiro, \'_\', Ciclo_Estacion_Arribo) AS Ruta,
+
+           TIME(
+             TIMEDIFF(
+               CONCAT(Fecha_Arribo, \' \', Hora_Arribo),
+               CONCAT(Fecha_Retiro, \' \', Hora_Retiro)
+             )
+           ) AS Tiempo
+    FROM ', @table_name
+  );
+
+  SET @delete_first_semester_table_query = CONCAT(
+    'DROP TABLE IF EXISTS rutas_ene_jun_', new_year
+  );
+
+  CALL execute_drop_table_query(@delete_first_semester_table_query);
+
+  SET @create_first_semester_table_query = CONCAT(
+    'CREATE TABLE rutas_ene_jun_', new_year ,' AS ',
+    @table_origin, ' 
+      WHERE MONTH(Fecha_Retiro) <= 6
+    UNION ALL ',
+    @table_destiny, ' 
+      WHERE MONTH(Fecha_Retiro) <= 6'
+  );
+
+  CALL execute_create_table_query(@create_first_semester_table_query);
+
+  SET @delete_second_semester_table_query = CONCAT(
+    'DROP TABLE IF EXISTS rutas_jul_dic_', new_year
+  );
+
+  CALL execute_drop_table_query(@delete_second_semester_table_query);
+
+  SET @create_second_semester_table_query = CONCAT(
+    'CREATE TABLE rutas_jul_dic_', new_year ,' AS ',
+    @table_origin, ' 
+      WHERE MONTH(Fecha_Retiro) > 6
+    UNION ALL ',
+    @table_destiny, ' 
+      WHERE MONTH(Fecha_Retiro) > 6'
+  );
+
+  CALL execute_create_table_query(@create_second_semester_table_query);
+END;
+
+CALL generate_dataset_year_to_planbike(2019);
+
 -- 3574317 registros hasta mayo
 CREATE TABLE viajes_2019
 SELECT * FROM registrobicis
 WHERE YEAR(Fecha_Retiro) = 2019;
-
--- Consulta necesario para las gráficas en Tableau
-SELECT viajes_2019.idRegistroBicis,
-       viajes_2019.Edad_usuario,
-       viajes_2019.Bici, 
-       viajes_2019.Ciclo_Estacion_Retiro, 
-
-       CONCAT(viajes_2019.Fecha_Retiro, ' ', viajes_2019.Hora_Retiro) AS Horario_Origen,
-       CONCAT(viajes_2019.Fecha_Arribo, ' ', viajes_2019.Hora_Arribo) AS Horario_Destino,
-
-       est_origen.Ubicacion AS Ubicacion_origen,
-       est_origen.Latitud AS latitud_origen,
-       est_origen.Longitud AS longitud_origen,
-       est_origen.districtName AS districtname_origen,
-       est_origen.nearbyStations AS nearbystations_origen,
-       est_origen.slots AS slots_origen,
-       alc_origen.Alcaldia AS Alcaldia_origen,
-
-       est_destino.Ubicacion AS Ubicacion_destino,
-       est_destino.Latitud AS latitud_destino,
-       est_destino.Longitud AS longitud_destino,
-       est_destino.districtName AS districtname_destino,
-       est_destino.nearbyStations AS nearbystations_destino,
-       est_destino.slots AS slots_destino,
-       alc_destino.Alcaldia AS Alcaldia_destino
-
-FROM viajes_2019
-INNER JOIN estacion AS est_origen
-  ON viajes_2019.Ciclo_Estacion_Retiro = est_origen.idEstacion
-INNER JOIN estacion AS est_destino
-  ON viajes_2019.Ciclo_Estacion_Arribo = est_destino.idEstacion
-INNER JOIN alcaldias AS alc_origen
-  ON est_origen.codAlcaldia = alc_origen.codigoAlcaldia
-INNER JOIN alcaldias AS alc_destino
-  ON est_destino.codAlcaldia = alc_destino.codigoAlcaldia;
 
 /**
  * Tableau sólo permite subir 15 millones de registros en cada dataset.

@@ -46,7 +46,7 @@ def is_hour_in_mysql_format(hour):
     return True
 
   hour = str(hour)
-  valid_format_regex = '^[0-9]{2}:[0-9]{2}:[0-9]{2}(\.[0-9]{2,6})?$'
+  valid_format_regex = '^[0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2}(\.[0-9]{2,6})?$'
 
   return is_match(valid_format_regex, hour)
 
