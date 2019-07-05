@@ -67,9 +67,11 @@ val = Validator(rules)
 # x = datetime.strptime('2019-03-13', '%Y/%m/%d').date()
 
 try:
-  x = datetime(2010, 2, 29)
+  hola = str(None)
+  print(hola)
 except Exception as error:
   print("Hubo un error")
   print(error)
 
   print(type(error))
+

@@ -31,12 +31,19 @@ BEGIN
            
            CONCAT(Ciclo_Estacion_Retiro, \'_\', Ciclo_Estacion_Arribo) AS Ruta,
 
-           TIME(
-             TIMEDIFF(
-               CONCAT(Fecha_Arribo, \' \', Hora_Arribo),
-               CONCAT(Fecha_Retiro, \' \', Hora_Retiro)
-             )
-           ) AS Tiempo
+           (CASE 
+             WHEN are_valid_dates_diff(
+                    Fecha_Retiro,
+                    Hora_Retiro,
+                    Fecha_Arribo,
+                    Hora_Arribo
+                  ) THEN
+                     TIMEDIFF(
+                       CONCAT(Fecha_Arribo, \' \', Hora_Arribo),
+                       CONCAT(Fecha_Retiro, \' \', Hora_Retiro)
+                     ) 
+             ELSE \'00:00:00\'
+           END) AS Tiempo
     FROM ', @table_name
   );
 
@@ -53,12 +60,19 @@ BEGIN
            
            CONCAT(Ciclo_Estacion_Retiro, \'_\', Ciclo_Estacion_Arribo) AS Ruta,
 
-           TIME(
-             TIMEDIFF(
-               CONCAT(Fecha_Arribo, \' \', Hora_Arribo),
-               CONCAT(Fecha_Retiro, \' \', Hora_Retiro)
-             )
-           ) AS Tiempo
+           (CASE 
+             WHEN are_valid_dates_diff(
+                    Fecha_Retiro,
+                    Hora_Retiro,
+                    Fecha_Arribo,
+                    Hora_Arribo
+                  ) THEN
+                     TIMEDIFF(
+                       CONCAT(Fecha_Arribo, \' \', Hora_Arribo),
+                       CONCAT(Fecha_Retiro, \' \', Hora_Retiro)
+                     ) 
+             ELSE \'00:00:00\'
+           END) AS Tiempo
     FROM ', @table_name
   );
 
@@ -126,9 +140,11 @@ SELECT idRegistroBicis AS IDRegistro,
        
        CONCAT(Ciclo_Estacion_Retiro, '_', Ciclo_Estacion_Arribo) AS Ruta,
 
-       TIMEDIFF(
-         CONCAT(Fecha_Arribo, ' ', Hora_Arribo),
-         CONCAT(Fecha_Retiro, ' ', Hora_Retiro)
+       TIME(
+         TIMEDIFF(
+           CONCAT(Fecha_Arribo, ' ', Hora_Arribo),
+           CONCAT(Fecha_Retiro, ' ', Hora_Retiro)
+         )
        ) AS Tiempo
 FROM viajes_2019
 WHERE MONTH(Fecha_Retiro) <= 6;
@@ -149,10 +165,12 @@ SELECT idRegistroBicis AS IDRegistro,
        
        CONCAT(Ciclo_Estacion_Retiro, '_', Ciclo_Estacion_Arribo) AS Ruta,
 
-       TIMEDIFF(
-         CONCAT(Fecha_Arribo, ' ', Hora_Arribo),
-         CONCAT(Fecha_Retiro, ' ', Hora_Retiro)
-       ) AS Tiempo
+       TIME(
+         TIMEDIFF(
+           CONCAT(Fecha_Arribo, ' ', Hora_Arribo),
+           CONCAT(Fecha_Retiro, ' ', Hora_Retiro)
+         )
+        ) AS Tiempo
 FROM viajes_2019
 WHERE MONTH(Fecha_Retiro) <= 6;
 -- Para generar el segundo semestre del año sólo hay que cambiar esta condición
@@ -164,6 +182,7 @@ SELECT * FROM rutas_origen_ene_jun_2019
 UNION ALL
 SELECT * FROM rutas_destino_ene_jun_2019;
 
+-- Esta vista no se utiliza, los joins se hacen directamente en Tableau
 -- Vista que muestra información más detallada de la vista final de rutas generada
 CREATE TABLE rutas_ene_jun_2019_mapas
 SELECT viajes.`Género`,

@@ -57,9 +57,12 @@ def is_valid_hour(hour_string):
   hour_string = str(hour_string)
   hour_list = hour_string.split(':')
 
-  hours = float(hour_list[0])
-  minutes = float(hour_list[1])
-  seconds = float(hour_list[2])
+  try:
+    hours = float(hour_list[0])
+    minutes = float(hour_list[1])
+    seconds = float(hour_list[2])
+  except Exception as error:
+    return False
 
   return (
         hours >= 0 and hours <= 23 and

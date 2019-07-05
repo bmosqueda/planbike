@@ -43,6 +43,15 @@ class Database:
               (primary_key,)
            )
 
+  def start_transaction():
+    return self.query('START TRANSACTION')
+
+  def commit_transaction():
+    return self.query('COMMIT')
+
+  def rollback_transaction():
+    return self.query('ROLLBACK')
+
   def insert(self, data):
     sql = ('INSERT INTO {} ({}) VALUES({})'
           .format(

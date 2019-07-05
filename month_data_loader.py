@@ -114,14 +114,15 @@ def load_month(month_file_name):
       writer = csv.writer(writeFile)
       writer.writerows(bad_lines)
 
+  print(f'Carga de {month_file_name} terminada')
   print(f'Processed lines: {line_count}')
   print(f'Bad lines: {len(bad_lines)}')
   print(f'Good lines: {line_count - len(bad_lines)}')
 
 start = time.time()
-load_month('2019-01.csv')
-load_month('2019-02.csv')
-load_month('2019-03.csv')
+load_month('2019-04.csv')
+load_month('2019-05.csv')
+load_month('2019-06.csv')
 
 print(f'Total time of execution: {time.time() - start}')
 # 2019-03 de mil en mil: 200.23364353179932
