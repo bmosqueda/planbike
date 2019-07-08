@@ -1,12 +1,14 @@
 import sys
 import config
+import os
 
 sys.path.append(config.UTILS_PATH)
 sys.path.append(config.MODELS_PATH)
 
 from validator import is_int
-from os import system
-import os
+from bicycle_trips import BicycleTrip
+
+bicycle_controller = BicycleTrip()
 
 semesters_options = {
   'first': 1,
@@ -18,9 +20,9 @@ semesters_names = [ 'Primero', 'Segundo', 'Ambos' ]
 
 def clear_screen(): 
   if(os.name == 'posix'):
-    _ = system('clear') 
+    _ = os.system('clear') 
   else:
-    _ = system('cls')
+    _ = os.system('cls')
 
 def ask_for_confirmation(confirmation):
   confirmation = confirmation.lower()
@@ -37,10 +39,7 @@ def call_month_data_loader(base_path, files_to_load):
   for file_name in files_to_load:
     command = command + ' ' + os.path.join(base_path, file_name)
 
-  system(command)
-
-def get_yes_no_by_boolean(value):
-  return 'Sí' if value else 'No'
+  os.system(command)
 
 def is_valid_year(year):
   return is_int(year) and int(year) >= 2010 and int(year) < 2100
@@ -143,8 +142,6 @@ def is_correct_info():
     else:
       break
 
-  # clear_screen()
-
   # Show resume
   clear_screen()
   print('¿Es correcta la información? (s/n)\n')
@@ -176,11 +173,112 @@ def is_correct_info():
 
     except Exception as error:
       error
-
-  print("Todo correcto")
   
   if(len(files_names) > 0):
-    print('Include files_names')
-    # call_month_data_loader(base_path, files_names)
+    print('Cargando archivos...')
+    call_month_data_loader(base_path, files_names)
+
+  # Create database needed tables
+  print('Creando tablas...')
+  base_table = f'viajes_{year}'
+
+  try:
+    bicycle_controller.drop_table_if_exists(base_table)
+
+    bicycle_controller.query(
+      f'''CREATE TABLE {base_table} AS 
+        SELECT * FROM registrobicis 
+        WHERE YEAR(Fecha_Retiro) = {year}'''
+    )
+
+    print(f'Tabla base "{base_table}" creada')
+
+    table_origin = f'''SELECT idRegistroBicis AS IDRegistro,
+                               Genero_Usuario AS `Género`,
+                               Edad_Usuario AS `Edad`,
+                               Bici AS `Bici`,
+                               Ciclo_Estacion_Retiro AS `Estación`,
+                               Fecha_Retiro AS `Fecha`,
+                               Hora_Retiro AS `Hora`,
+
+                               'Origen' AS TipoRuta,
+                               
+                               CONCAT(Ciclo_Estacion_Retiro, '_', Ciclo_Estacion_Arribo) AS Ruta,
+
+                               (CASE 
+                                 WHEN are_valid_dates_diff(
+                                        Fecha_Retiro,
+                                        Hora_Retiro,
+                                        Fecha_Arribo,
+                                        Hora_Arribo
+                                      ) THEN
+                                         TIMEDIFF(
+                                           CONCAT(Fecha_Arribo, ' ', Hora_Arribo),
+                                           CONCAT(Fecha_Retiro, ' ', Hora_Retiro)
+                                         ) 
+                                 ELSE '00:00:00'
+                               END) AS Tiempo
+                        FROM {base_table}'''
+
+    table_destiny = f'''SELECT idRegistroBicis AS IDRegistro,
+                               Genero_Usuario AS `Género`,
+                               Edad_Usuario AS `Edad`,
+                               Bici AS `Bici`,
+                               Ciclo_Estacion_Arribo AS `Estación`,
+                               Fecha_Arribo AS `Fecha`,
+                               Hora_Arribo AS `Hora`,
+
+                               'Destino' AS TipoRuta,
+                               
+                               CONCAT(Ciclo_Estacion_Retiro, '_', Ciclo_Estacion_Arribo) AS Ruta,
+
+                               (CASE 
+                                 WHEN are_valid_dates_diff(
+                                        Fecha_Retiro,
+                                        Hora_Retiro,
+                                        Fecha_Arribo,
+                                        Hora_Arribo
+                                      ) THEN
+                                         TIMEDIFF(
+                                           CONCAT(Fecha_Arribo, ' ', Hora_Arribo),
+                                           CONCAT(Fecha_Retiro, ' ', Hora_Retiro)
+                                         ) 
+                                 ELSE '00:00:00'
+                               END) AS Tiempo
+                        FROM {base_table}'''
+
+    first_semester_table = f'rutas_ene_jun_{year}'
+    second_semester_table = f'rutas_jul_dic_{year}'
+
+    if(is_first_semester(semester) or are_both_semesters(semester)):
+      bicycle_controller.drop_table_if_exists(first_semester_table)
+
+      bicycle_controller.query(
+        f'''CREATE TABLE {first_semester_table} AS
+              {table_origin}
+              WHERE MONTH(Fecha_Retiro) <= 6
+            UNION ALL
+              {table_destiny}
+              WHERE MONTH(Fecha_Retiro) <= 6'''
+      )
+
+      print(f'Tabla del primer semestre "{base_table}" creada')
+    
+    if(is_second_semester(semester) or are_both_semesters(semester)):
+      bicycle_controller.drop_table_if_exists(second_semester_table)
+
+      bicycle_controller.query(
+        f'''CREATE TABLE {second_semester_table} AS
+              {table_origin}
+              WHERE MONTH(Fecha_Retiro) > 6
+            UNION ALL
+              {table_destiny}
+              WHERE MONTH(Fecha_Retiro) > 6'''
+      )
+
+      print(f'Tabla del segundo semestre "{base_table}" creada')
+  except Exception as error:
+    print('Error al crear las tablas')
+    print(error)
 
 is_correct_info()

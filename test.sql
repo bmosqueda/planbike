@@ -3,7 +3,9 @@ CREATE PROCEDURE test()
 BEGIN
   SET @name = 'registrobicis';
 
-  SELECT COUNT(*) FROM @name;
+  SELECT 10 * 15;
+
+  SELECT 'hola' AS mundo;
 END;
 
 DROP PROCEDURE IF EXISTS execute_create_table_query;

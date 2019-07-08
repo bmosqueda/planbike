@@ -16,6 +16,7 @@ from validator import Validator
 bicycle_controller = BicycleTrip()
 station_controller = Station()
 
-arr = ['hola', 'mundo', 'adiós', 'vida']
+hola = 3
+mundo = f'mundo_{hola}'
 
-print('\n +++ '.join( arr ))
+print(mundo)

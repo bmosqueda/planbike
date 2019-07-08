@@ -36,14 +36,22 @@ class Database:
               (primary_key,)
            )
 
-  def start_transaction():
+  def start_transaction(self):
+    self.disable_autocommit()
+
     return self.query('START TRANSACTION')
 
-  def commit_transaction():
+  def commit_transaction(self):
     return self.query('COMMIT')
 
-  def rollback_transaction():
+  def rollback_transaction(self):
     return self.query('ROLLBACK')
+
+  def disable_autocommit(self):
+    return self.query('SET GLOBAL autocommit = 0')
+
+  def enable_autocommit(self):
+    return self.query('SET GLOBAL autocommit = 1')
 
   def insert(self, data):
     sql = ('INSERT INTO {} ({}) VALUES({})'
@@ -63,3 +71,6 @@ class Database:
     self.connector.commit()
     
     return cursor
+
+  def drop_table_if_exists(self, table):
+    return self.query(f'DROP TABLE IF EXISTS {table}')
