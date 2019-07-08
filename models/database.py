@@ -1,13 +1,6 @@
-import json
 import mysql.connector
 import sql_query_formatter as formatter
-
-credentials = None
-
-with open('credentials.json') as json_file:  
-  credentials = json.load(json_file)
-
-credentials = credentials["development"]
+from config import database as credentials
 
 class Database:
   def __init__(self, table, props, primary_key):

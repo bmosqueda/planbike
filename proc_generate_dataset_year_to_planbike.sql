@@ -1,7 +1,13 @@
+-- completed in 10 m 2 s 590 ms
 DROP PROCEDURE IF EXISTS generate_dataset_year_to_planbike;
 
-CREATE PROCEDURE generate_dataset_year_to_planbike(new_year INT)
+CREATE PROCEDURE generate_dataset_year_to_planbike(new_year INT, semester_to_generate INT)
 BEGIN
+  SET @only_first_semester = 1;
+  SET @only_second_semester = 2;
+  SET @both_semesters = 3;
+
+  -- Base table
   SET @table_name = CONCAT('viajes_', new_year);
 
   SET @delete_base_table_query = CONCAT(
@@ -76,42 +82,52 @@ BEGIN
     FROM ', @table_name
   );
 
-  SET @delete_first_semester_table_query = CONCAT(
-    'DROP TABLE IF EXISTS rutas_ene_jun_', new_year
-  );
+  -- First semester table
+  IF semester_to_generate = @only_first_semester OR
+     semester_to_generate = @both_semesters 
+  THEN  
+    SET @delete_first_semester_table_query = CONCAT(
+      'DROP TABLE IF EXISTS rutas_ene_jun_', new_year
+    );
 
-  CALL execute_drop_table_query(@delete_first_semester_table_query);
+    CALL execute_drop_table_query(@delete_first_semester_table_query);
 
-  SET @create_first_semester_table_query = CONCAT(
-    'CREATE TABLE rutas_ene_jun_', new_year ,' AS ',
-    @table_origin, ' 
-      WHERE MONTH(Fecha_Retiro) <= 6
-    UNION ALL ',
-    @table_destiny, ' 
-      WHERE MONTH(Fecha_Retiro) <= 6'
-  );
+    SET @create_first_semester_table_query = CONCAT(
+      'CREATE TABLE rutas_ene_jun_', new_year ,' AS ',
+      @table_origin, ' 
+        WHERE MONTH(Fecha_Retiro) <= 6
+      UNION ALL ',
+      @table_destiny, ' 
+        WHERE MONTH(Fecha_Retiro) <= 6'
+    );
 
-  CALL execute_create_table_query(@create_first_semester_table_query);
+    CALL execute_create_table_query(@create_first_semester_table_query);
+  END IF;
 
-  SET @delete_second_semester_table_query = CONCAT(
-    'DROP TABLE IF EXISTS rutas_jul_dic_', new_year
-  );
+  -- Second semester table
+  IF semester_to_generate = @only_second_semester OR
+     semester_to_generate = @both_semesters 
+  THEN 
+    SET @delete_second_semester_table_query = CONCAT(
+      'DROP TABLE IF EXISTS rutas_jul_dic_', new_year
+    );
 
-  CALL execute_drop_table_query(@delete_second_semester_table_query);
+    CALL execute_drop_table_query(@delete_second_semester_table_query);
 
-  SET @create_second_semester_table_query = CONCAT(
-    'CREATE TABLE rutas_jul_dic_', new_year ,' AS ',
-    @table_origin, ' 
-      WHERE MONTH(Fecha_Retiro) > 6
-    UNION ALL ',
-    @table_destiny, ' 
-      WHERE MONTH(Fecha_Retiro) > 6'
-  );
+    SET @create_second_semester_table_query = CONCAT(
+      'CREATE TABLE rutas_jul_dic_', new_year ,' AS ',
+      @table_origin, ' 
+        WHERE MONTH(Fecha_Retiro) > 6
+      UNION ALL ',
+      @table_destiny, ' 
+        WHERE MONTH(Fecha_Retiro) > 6'
+    );
 
-  CALL execute_create_table_query(@create_second_semester_table_query);
+    CALL execute_create_table_query(@create_second_semester_table_query);
+  END IF;
 END;
 
-CALL generate_dataset_year_to_planbike(2019);
+CALL generate_dataset_year_to_planbike(2019, 3);
 
 -- 3574317 registros hasta mayo
 CREATE TABLE viajes_2019

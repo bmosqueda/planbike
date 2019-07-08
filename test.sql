@@ -9,7 +9,9 @@ END;
 DROP PROCEDURE IF EXISTS execute_create_table_query;
 CREATE PROCEDURE execute_create_table_query(query TEXT)
 BEGIN
-  PREPARE createtb FROM query;
+  SET @query_tmp = query;
+
+  PREPARE createtb FROM @query_tmp;
   EXECUTE createtb;
   DEALLOCATE PREPARE createtb;
 END;
@@ -17,7 +19,9 @@ END;
 DROP PROCEDURE IF EXISTS execute_drop_table_query;
 CREATE PROCEDURE execute_drop_table_query(query TEXT)
 BEGIN
-  PREPARE deletetb FROM query;
+  SET @query_tmp = query;
+
+  PREPARE deletetb FROM @query_tmp;
   EXECUTE deletetb;
   DEALLOCATE PREPARE deletetb;
 END;

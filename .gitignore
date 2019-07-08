@@ -1,3 +1,5 @@
 respaldo*.sql
 credentials.json
+config.json
+config.py
 **/__pycache__

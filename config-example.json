@@ -3,12 +3,14 @@
     "host": "localhost",
     "database": "myDatabase",
     "user": "myUser",
-    "password": "myPassword"
+    "password": "myPassword",
+    "basePath": "/home/bmosqueda/Downloads/BIKE/Code/"
   },
   "production": {
     "host": "localhost",
     "database": "myDatabase",
     "user": "myUser",
-    "password": "myPassword"
+    "password": "myPassword",
+    "basePath": "/home/bmosqueda/Downloads/BIKE/Code/"
   }
 }

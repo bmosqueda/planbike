@@ -1,10 +1,13 @@
 import csv
-import paths
+from config import UTILS_PATH
+from config import MODELS_PATH
+from config import ERRORS_PATH
+import os.path
 import time
 import sys
 
-sys.path.append(paths.utils)
-sys.path.append(paths.models)
+sys.path.append(UTILS_PATH)
+sys.path.append(MODELS_PATH)
 
 from date_to_mysql_format import date_to_mysql_format
 from date_to_mysql_format import DateFormatException
@@ -14,11 +17,6 @@ from bicycle_trips import BicycleTrip
 
 trips_controller = BicycleTrip()
 
-file_name = '2010-02.csv'
-file_name = '2010-02-test.csv'
-file_name = '2019-03.csv'
-read_path = '/home/bmosqueda/Downloads/BIKE/Resources/Datasets/'
-write_path = '/home/bmosqueda/Downloads/BIKE/Resources/Datasets/formated/'
 INSERTIONS_BY_CYCLE = 10000
 step = 1
 
@@ -64,10 +62,11 @@ def load_month(month_file_name):
   data = []
   bad_lines = []
 
-  with open(read_path + month_file_name) as csv_file:
+  with open(month_file_name) as csv_file:
     csv_reader = csv.reader(csv_file, delimiter = ',')
     files_to_insert = 0
     line_count = 0
+    step = 0
 
     for row in csv_reader:
       line_count += 1
@@ -98,19 +97,19 @@ def load_month(month_file_name):
         row.append(error)
         row.append(line_count)
         bad_lines.append(row)
-        print(error)
+        # print(error)
       except ValidationException as error:
         row.append(validator.result)
         row.append(line_count)
         bad_lines.append(row)
-        print(validator.result)
+        # print(validator.result)
 
     # Faltaron algunos por insertarse
     if(len(data) > 0):
       trips_controller.insert_many_from_csv(data)
 
   if(len(bad_lines) > 0):
-    with open(write_path + 'errors-' + month_file_name, 'w') as writeFile:
+    with open(os.path.join(ERRORS_PATH, 'errors-' + os.path.basename(month_file_name)), 'w') as writeFile:
       writer = csv.writer(writeFile)
       writer.writerows(bad_lines)
 
@@ -119,11 +118,15 @@ def load_month(month_file_name):
   print(f'Bad lines: {len(bad_lines)}')
   print(f'Good lines: {line_count - len(bad_lines)}')
 
-start = time.time()
-load_month('2019-04.csv')
-load_month('2019-05.csv')
-load_month('2019-06.csv')
+if(len(sys.argv) == 1):
+  print('Es necesario la ruta del archivo a cargar')
+else:
+  start = time.time()
 
-print(f'Total time of execution: {time.time() - start}')
-# 2019-03 de mil en mil: 200.23364353179932
-# 2019-03 de diez mil en diez mil: 175.82711815834045
+  for file_name in sys.argv[1:]:
+    if(os.path.isfile(file_name)):
+      load_month(file_name)
+    else:
+      print(f'{file_name} no es un archivo válido')
+
+  print(f'Tiempo total tomando en la carga de registros: {time.time() - start}')
