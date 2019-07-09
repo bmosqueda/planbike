@@ -12,11 +12,11 @@ from database import Database
 from bicycle_trips import BicycleTrip
 from station import Station
 from validator import Validator
+from csv_month_loader import CSVMonthLoader
 
 bicycle_controller = BicycleTrip()
 station_controller = Station()
 
-hola = 3
-mundo = f'mundo_{hola}'
-
-print(mundo)
+loader = CSVMonthLoader()
+file = '/home/bmosqueda/Downloads/BIKE/Resources/Datasets/2010-02-test.cssv'
+loader.load(file)

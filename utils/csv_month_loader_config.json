@@ -1,0 +1,26 @@
+{
+  "insertions_by_cycle": 10000,
+  "fields_num": 9,
+  "indexes": {
+    "gender": 0,
+    "age": 1,
+    "bike_number": 2,
+    "removal_station": 3,
+    "removal_date": 4,
+    "removal_hour": 5,
+    "arrival_station": 6,
+    "arrival_date": 7,
+    "arrival_hour": 8
+  },
+  "fields_rules": {
+    "Genero_Usuario": "is_required|has_exact_length,1",
+    "Edad_Usuario": "is_required|is_int",
+    "Bici": "is_required|is_int",
+    "Ciclo_Estacion_Retiro": "is_required|is_int",
+    "Fecha_Retiro": "is_required|is_date_in_mysql_format",
+    "Hora_Retiro": "is_required|is_hour_in_mysql_format|is_valid_hour",
+    "Ciclo_Estacion_Arribo": "is_required|is_int",
+    "Fecha_Arribo": "is_required|is_date_in_mysql_format",
+    "Hora_Arribo": "is_required|is_hour_in_mysql_format|is_valid_hour"
+  }
+}

@@ -1,19 +1,16 @@
-import csv
-from config import UTILS_PATH
-from config import MODELS_PATH
-from config import ERRORS_PATH
-import os.path
-import time
 import sys
+import csv
+import time
+import os.path
+
+from config import UTILS_PATH, MODELS_PATH, ERRORS_PATH
 
 sys.path.append(UTILS_PATH)
 sys.path.append(MODELS_PATH)
 
-from date_to_mysql_format import date_to_mysql_format
-from date_to_mysql_format import DateFormatException
-from validator import Validator
-from validator import ValidationException
+from validator import Validator, ValidationException
 from bicycle_trips import BicycleTrip
+from date_to_mysql_format import date_to_mysql_format, DateFormatException
 
 trips_controller = BicycleTrip()
 
@@ -68,15 +65,13 @@ def load_month(month_file_name):
     line_count = 0
     step = 0
 
-    for row in csv_reader:
+    # Metadata line
+    for row in csv_reader[ 1: ]:
       line_count += 1
       files_to_insert += 1
       
       if(len(row) > 9):
         row = row[:9]
-      # Metadata line
-      if(line_count == 1):
-        continue
 
       try: 
         row[ ARRIVAL_DATE_INDEX ] = date_to_mysql_format(row[ ARRIVAL_DATE_INDEX ])

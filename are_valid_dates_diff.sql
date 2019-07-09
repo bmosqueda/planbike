@@ -8,7 +8,7 @@ CREATE FUNCTION are_valid_dates_diff(
 ) RETURNS BOOLEAN
 BEGIN
   RETURN DATEDIFF(
-          CONCAT(Fecha_Arribo, ' ', Hora_Arribo),
-          CONCAT(Fecha_Retiro, ' ', Hora_Retiro)
-        ) < 2;
+           CONCAT(Fecha_Arribo, ' ', Hora_Arribo),
+           CONCAT(Fecha_Retiro, ' ', Hora_Retiro)
+         ) < 2;
 END;
