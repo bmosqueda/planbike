@@ -1,6 +1,6 @@
 DROP FUNCTION IF EXISTS are_valid_dates_diff;
 
-CREATE FUNCTION are_valid_dates_diff(
+CREATE FUNCTION IF NOT EXISTS are_valid_dates_diff(
   Fecha_Retiro DATE,
   Hora_Retiro TIME,
   Fecha_Arribo DATE,

@@ -6,10 +6,9 @@ sys.path.append(config.UTILS_PATH)
 sys.path.append(config.MODELS_PATH)
 
 from validator import is_int
-from bicycle_trips import BicycleTrip
+from tableau_dataset_creator import TableauDatasetCreator
 from csv_month_loader import CSVMonthLoader
 
-bicycle_controller = BicycleTrip()
 data_loader = CSVMonthLoader()
 
 semesters_options = {
@@ -177,105 +176,25 @@ def is_correct_info():
 
   # Create database needed tables
   print('\n\n*** Creando tablas ***')
-  base_table = f'viajes_{year}'
 
   try:
-    bicycle_controller.drop_table_if_exists(base_table)
+    dataset_creator = TableauDatasetCreator(year)
+    
+    dataset_creator.create_base_table()
 
-    bicycle_controller.query(
-      f'''CREATE TABLE {base_table} AS 
-        SELECT * FROM registrobicis 
-        WHERE YEAR(Fecha_Retiro) = {year}'''
-    )
-
-    print(f'Tabla base "{base_table}" creada')
-
-    table_origin = f'''SELECT idRegistroBicis AS IDRegistro,
-                               Genero_Usuario AS `Género`,
-                               Edad_Usuario AS `Edad`,
-                               Bici AS `Bici`,
-                               Ciclo_Estacion_Retiro AS `Estación`,
-                               Fecha_Retiro AS `Fecha`,
-                               Hora_Retiro AS `Hora`,
-
-                               'Origen' AS TipoRuta,
-                               
-                               CONCAT(Ciclo_Estacion_Retiro, '_', Ciclo_Estacion_Arribo) AS Ruta,
-
-                               (CASE 
-                                 WHEN are_valid_dates_diff(
-                                        Fecha_Retiro,
-                                        Hora_Retiro,
-                                        Fecha_Arribo,
-                                        Hora_Arribo
-                                      ) THEN
-                                         TIMEDIFF(
-                                           CONCAT(Fecha_Arribo, ' ', Hora_Arribo),
-                                           CONCAT(Fecha_Retiro, ' ', Hora_Retiro)
-                                         ) 
-                                 ELSE '00:00:00'
-                               END) AS Tiempo
-                        FROM {base_table}'''
-
-    table_destiny = f'''SELECT idRegistroBicis AS IDRegistro,
-                               Genero_Usuario AS `Género`,
-                               Edad_Usuario AS `Edad`,
-                               Bici AS `Bici`,
-                               Ciclo_Estacion_Arribo AS `Estación`,
-                               Fecha_Arribo AS `Fecha`,
-                               Hora_Arribo AS `Hora`,
-
-                               'Destino' AS TipoRuta,
-                               
-                               CONCAT(Ciclo_Estacion_Retiro, '_', Ciclo_Estacion_Arribo) AS Ruta,
-
-                               (CASE 
-                                 WHEN are_valid_dates_diff(
-                                        Fecha_Retiro,
-                                        Hora_Retiro,
-                                        Fecha_Arribo,
-                                        Hora_Arribo
-                                      ) THEN
-                                         TIMEDIFF(
-                                           CONCAT(Fecha_Arribo, ' ', Hora_Arribo),
-                                           CONCAT(Fecha_Retiro, ' ', Hora_Retiro)
-                                         ) 
-                                 ELSE '00:00:00'
-                               END) AS Tiempo
-                        FROM {base_table}'''
-
-    first_semester_table = f'rutas_ene_jun_{year}'
-    second_semester_table = f'rutas_jul_dic_{year}'
+    print(f'Tabla base "{dataset_creator.base_table}" creada')
 
     if(is_first_semester(semester) or are_both_semesters(semester)):
-      bicycle_controller.drop_table_if_exists(first_semester_table)
+      dataset_creator.create_first_semester_table()
 
-      bicycle_controller.query(
-        f'''CREATE TABLE {first_semester_table} AS
-              {table_origin}
-              WHERE MONTH(Fecha_Retiro) <= 6
-            UNION ALL
-              {table_destiny}
-              WHERE MONTH(Fecha_Retiro) <= 6'''
-      )
-
-      print(f'Tabla del primer semestre "{first_semester_table}" creada')
+      print(f'Tabla del primer semestre "{dataset_creator.first_semester_table}" creada')
     
     if(is_second_semester(semester) or are_both_semesters(semester)):
-      bicycle_controller.drop_table_if_exists(second_semester_table)
+      dataset_creator.create_second_semester_table()
 
-      bicycle_controller.query(
-        f'''CREATE TABLE {second_semester_table} AS
-              {table_origin}
-              WHERE MONTH(Fecha_Retiro) > 6
-            UNION ALL
-              {table_destiny}
-              WHERE MONTH(Fecha_Retiro) > 6'''
-      )
+      print(f'Tabla del segundo semestre "{dataset_creator.second_semester_table}" creada')
 
-      print(f'Tabla del segundo semestre "{second_semester_table}" creada')
-
-      print('\n******* Se terminaron de crear correctamente las tablas *******')
+    print('\n******* Se terminaron de crear correctamente las tablas *******')
   except Exception as error:
     print('Error al crear las tablas')
     print(error)
