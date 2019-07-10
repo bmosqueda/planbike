@@ -47,6 +47,8 @@ class CSVMonthLoader:
       print(f'{month_file_name} no es un archivo válido, intenta con otro')
       return 0
 
+    print(f'*** Cargando {os.path.basename(month_file_name)} ***')
+
     with open(month_file_name) as csv_file:
       csv_reader = csv.reader(csv_file, delimiter = ',')
       files_to_insert = 0
@@ -63,7 +65,12 @@ class CSVMonthLoader:
         files_to_insert += 1
         
         if(self.has_excedent_fields(row)):
-          row = row[ :len(self.indexes) ]
+          row = row[ :self.fields_num ]
+        elif(self.has_less_fields(row)):
+          row.append('Número de campos menor que el establecido')
+          row.append(line_count)
+          bad_lines.append(row)
+          continue
 
         try: 
           self.format_fields(row)
@@ -94,7 +101,6 @@ class CSVMonthLoader:
       if(len(data) > 0):
         bicycle_controller.insert_many_from_csv(data)
 
-    print(f'*** Carga de {os.path.basename(month_file_name)} terminada ***')
     print(f'Registros cargados correctamente: {line_count - len(bad_lines)}')
 
     if(len(bad_lines) > 0):
@@ -107,6 +113,9 @@ class CSVMonthLoader:
 
   def has_excedent_fields(self, row):
     return len(row) > self.fields_num
+
+  def has_less_fields(self, row):
+    return len(row) < self.fields_num
 
   def row_to_dictionary(self, row):
     return {

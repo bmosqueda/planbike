@@ -18,5 +18,5 @@ bicycle_controller = BicycleTrip()
 station_controller = Station()
 
 loader = CSVMonthLoader()
-file = '/home/bmosqueda/Downloads/BIKE/Resources/Datasets/2010-02-test.cssv'
+file = '/home/bmosqueda/Downloads/BIKE/Resources/Datasets/hola.csv'
 loader.load(file)

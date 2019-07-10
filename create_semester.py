@@ -7,8 +7,10 @@ sys.path.append(config.MODELS_PATH)
 
 from validator import is_int
 from bicycle_trips import BicycleTrip
+from csv_month_loader import CSVMonthLoader
 
 bicycle_controller = BicycleTrip()
+data_loader = CSVMonthLoader()
 
 semesters_options = {
   'first': 1,
@@ -32,14 +34,6 @@ def ask_for_confirmation(confirmation):
     raise Exception('Not valid confirmation option')
   else:
     return confirmation == 's'
-
-def call_month_data_loader(base_path, files_to_load):
-  command = 'python3 month_data_loader.py '
-  
-  for file_name in files_to_load:
-    command = command + ' ' + os.path.join(base_path, file_name)
-
-  os.system(command)
 
 def is_valid_year(year):
   return is_int(year) and int(year) >= 2010 and int(year) < 2100
@@ -67,6 +61,7 @@ def is_valid_semester(semester):
   )
 
 def is_correct_info():
+  clear_screen()
   need_to_load_month = False
   base_path = ''
   files_names = []
@@ -169,17 +164,19 @@ def is_correct_info():
         break
       else:
         clear_screen()
-        is_correct_info()    
+        is_correct_info()
 
     except Exception as error:
       error
   
   if(len(files_names) > 0):
-    print('Cargando archivos...')
-    call_month_data_loader(base_path, files_names)
+    clear_screen()
+    print('Cargando registros...')
+    for file_name in files_names:
+      data_loader.load(os.path.join(base_path, file_name))
 
   # Create database needed tables
-  print('Creando tablas...')
+  print('\n\n*** Creando tablas ***')
   base_table = f'viajes_{year}'
 
   try:
@@ -262,7 +259,7 @@ def is_correct_info():
               WHERE MONTH(Fecha_Retiro) <= 6'''
       )
 
-      print(f'Tabla del primer semestre "{base_table}" creada')
+      print(f'Tabla del primer semestre "{first_semester_table}" creada')
     
     if(is_second_semester(semester) or are_both_semesters(semester)):
       bicycle_controller.drop_table_if_exists(second_semester_table)
@@ -276,7 +273,9 @@ def is_correct_info():
               WHERE MONTH(Fecha_Retiro) > 6'''
       )
 
-      print(f'Tabla del segundo semestre "{base_table}" creada')
+      print(f'Tabla del segundo semestre "{second_semester_table}" creada')
+
+      print('\n******* Se terminaron de crear correctamente las tablas *******')
   except Exception as error:
     print('Error al crear las tablas')
     print(error)
