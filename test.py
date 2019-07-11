@@ -17,6 +17,12 @@ from csv_month_loader import CSVMonthLoader
 bicycle_controller = BicycleTrip()
 station_controller = Station()
 
-loader = CSVMonthLoader()
-file = '/home/bmosqueda/Downloads/BIKE/Resources/Datasets/hola.csv'
-loader.load(file)
+import glob
+my_path = '/home/bmosqueda/Downloads/BIKE/Code/'
+
+files = glob.glob(my_path + "*.sql")
+
+for file in files:
+  # Aquí dentro usar la función para leer imágenes
+  # Hacer las modificaciones a la imagen 
+  # Guardar la imagen
