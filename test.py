@@ -17,6 +17,27 @@ from csv_month_loader import CSVMonthLoader
 bicycle_controller = BicycleTrip()
 station_controller = Station()
 
-loader = CSVMonthLoader()
-file = '/home/bmosqueda/Downloads/BIKE/Resources/Datasets/hola.csv'
-loader.load(file)
+rules = {
+  "Genero_Usuario": "is_required|has_exact_length,1",
+  "Edad_Usuario": "is_required|is_int",
+  "Bici": "is_required|is_int",
+  "Ciclo_Estacion_Retiro": "is_int",
+  "Fecha_Retiro": "is_date_in_mysql_format",
+  "Hora_Retiro": "is_hour_in_mysql_format|is_valid_hour",
+  "Ciclo_Estacion_Arribo": "is_int",
+  "Fecha_Arribo": "is_date_in_mysql_format",
+  "Hora_Arribo": "is_hour_in_mysql_format|is_valid_hour"
+}
+
+obj = {
+  "Genero_Usuario": "hola",
+  "Bici": "45ss",
+  "Ciclo_Estacion_Arribo": 22.23
+}
+validator = Validator(rules)
+
+try:
+  validator.validate(obj)
+except Exception as error:
+  for error in validator.errors:
+    print(error)

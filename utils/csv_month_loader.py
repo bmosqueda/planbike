@@ -130,6 +130,14 @@ class CSVMonthLoader:
       'Hora_Arribo': row[ self.indexes.ARRIVAL_HOUR ]
     }
 
+  def dictionary_to_list(self, dictionary):
+    return list(
+      dictionary[ 'Bici' ],
+      dictionary[ 'Edad_Usuario' ],
+      dictionary[ 'Genero_Usuario' ],
+      dictionary[ 'Hora_Arribo' ]
+    )
+
   def format_fields(self, row):
     row[ self.indexes.ARRIVAL_DATE ] = date_to_mysql_format(row[ self.indexes.ARRIVAL_DATE ])
     row[ self.indexes.REMOVAL_DATE ] = date_to_mysql_format(row[ self.indexes.REMOVAL_DATE ])

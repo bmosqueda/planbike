@@ -129,9 +129,9 @@ class ValidationException(Exception):
 class Validator:
   def __init__(self, rules):
     self.rules = rules
-    self.result = []
+    self.errors = []
 
-    self.errors = {
+    self.errors_templates = {
       'is_number': '{} debe ser un número: {}',
       'is_int': '{} debe de ser un valor entero: {}',
       'min_value': '{} debe ser mayor o igual a {} : {}',
@@ -143,8 +143,8 @@ class Validator:
       'is_match': '{} no cumple {} : {}',
       'min_length': '{} debe de tener por lo menos {} caracteres : {}',
       'max_length': '{} debe de tener máximo {} caracteres : {}',
-      'has_exact_length': '{} debe tener exactamente {} caracteres : {}',
-      'is_required ': '{} es requerido: {}'
+      'has_exact_length': '{} debe tener exactamente {} caracteres: {}',
+      'is_required': '{} es requerido'
     }
 
     self.validators = {
@@ -173,8 +173,16 @@ class Validator:
     except Exception as error:
       return False
 
+  def has_field(self, data, field):
+    try:
+      data[ field ]
+      return True
+
+    except KeyError as error:
+      return False
+
   def validate(self, data, fields = None):
-    self.result = []
+    self.errors = []
 
     if(fields is None):
       fields = list(self.rules)
@@ -188,11 +196,20 @@ class Validator:
           param = rule[ 1 ]
           rule = rule[ 0 ]
 
-          if(not self.validators[ rule ](param, data[ field ])):
-            self.result.append(self.errors[ rule ].format(field, param, data[ field ]))
-        else:
-          if(not self.validators[ rule ](data[ field ])):
-            self.result.append(self.errors[ rule ].format(field, data[ field ]))
+          if(not self.has_field(data, field)):
+            continue
 
-    if(len(self.result) > 0):
-      raise ValidationException('There are some errors, look at result property to see them')
+          if(not self.validators[ rule ](param, data[ field ])):
+            self.errors.append(self.errors_templates[ rule ].format(field, param, data[ field ]))
+        else:
+          if(not self.has_field(data, field)):
+            if(rule == 'is_required'):
+              self.errors.append(self.errors_templates[ rule ].format(field))
+
+            continue
+
+          if(not self.validators[ rule ](data[ field ])):
+            self.errors.append(self.errors_templates[ rule ].format(field, data[ field ]))
+
+    if(len(self.errors) > 0):
+      raise ValidationException('There are some errors, look at errors property to see them')

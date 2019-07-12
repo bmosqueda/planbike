@@ -109,6 +109,8 @@ def is_correct_info():
       else:
         print("Por favor proporciona el nombre de un archivo correcto")
 
+    need_to_load_month = len(files_names) > 0
+
   clear_screen()
   print('Ingresa el año que quieres crear')
 
@@ -168,7 +170,7 @@ def is_correct_info():
     except Exception as error:
       error
   
-  if(len(files_names) > 0):
+  if(need_to_load_month):
     clear_screen()
     print('Cargando registros...')
     for file_name in files_names:
