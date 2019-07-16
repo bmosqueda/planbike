@@ -9,10 +9,10 @@ class Database:
     self.primary_key = primary_key
 
     self.connector = mysql.connector.connect(
-      host = credentials["host"],
-      database = credentials["database"],
-      user = credentials["user"],
-      passwd = credentials["password"]
+      host = credentials[ "host" ],
+      database = credentials[ "database" ],
+      user = credentials[ "user" ],
+      passwd = credentials[ "password" ]
     )
 
   def query(self, sql, params = tuple()):

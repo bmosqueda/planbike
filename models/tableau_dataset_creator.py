@@ -21,7 +21,13 @@ class TableauDatasetCreator(Database):
 
     self.query(
       f'''CREATE TABLE {self.base_table} AS 
-        SELECT * FROM registrobicis 
+        SELECT *,
+               CONCAT(
+                 Ciclo_Estacion_Retiro,
+                 '_',
+                 Ciclo_Estacion_Arribo
+               ) AS Id_Ruta
+        FROM registrobicis 
         WHERE YEAR(Fecha_Retiro) = {self.year}'''
     )
 

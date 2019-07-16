@@ -178,6 +178,7 @@ def is_correct_info():
 
   # Create database needed tables
   print('\n\n*** Creando tablas ***')
+  print('Esto puede tardar bastante tiempo, no apagues ni suspendas el equipo....')
 
   try:
     dataset_creator = TableauDatasetCreator(year)

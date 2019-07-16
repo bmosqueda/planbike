@@ -93,7 +93,7 @@ class CSVMonthLoader:
           row.append(line_count)
           bad_lines.append(row)
         except ValidationException as error:
-          row.append(self.validator.result)
+          row.append(self.validator.errors)
           row.append(line_count)
           bad_lines.append(row)
 
