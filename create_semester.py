@@ -5,59 +5,13 @@ import os
 sys.path.append(config.UTILS_PATH)
 sys.path.append(config.MODELS_PATH)
 
-from validator import is_int
+from validator import is_int, is_valid_year
 from tableau_dataset_creator import TableauDatasetCreator
 from csv_month_loader import CSVMonthLoader
+from semester import Semester, InvalidSemesterException
+from miscellaneous import clear_screen, ask_for_confirmation
 
 data_loader = CSVMonthLoader()
-
-semesters_options = {
-  'first': 1,
-  'second': 2,
-  'both': 3
-}
-
-semesters_names = [ 'Primero', 'Segundo', 'Ambos' ]
-
-def clear_screen(): 
-  if(os.name == 'posix'):
-    _ = os.system('clear') 
-  else:
-    _ = os.system('cls')
-
-def ask_for_confirmation(confirmation):
-  confirmation = confirmation.lower()
-
-  if(confirmation != 's' and confirmation != 'n'):
-    print(f'{confirmation} no es una opción válida')
-    raise Exception('Not valid confirmation option')
-  else:
-    return confirmation == 's'
-
-def is_valid_year(year):
-  return is_int(year) and int(year) >= 2010 and int(year) < 2100
-
-def is_first_semester(semester):
-  global semesters_options
-
-  return is_int(semester) and int(semester) == semesters_options[ 'first' ]
-
-def is_second_semester(semester):
-  global semesters_options
-
-  return is_int(semester) and int(semester) == semesters_options[ 'second' ]
-
-def are_both_semesters(semester):
-  global semesters_options
-
-  return is_int(semester) and int(semester) == semesters_options[ 'both' ]
-
-def is_valid_semester(semester):
-  return (
-    is_first_semester(semester) or
-    is_second_semester(semester) or
-    are_both_semesters(semester)
-  )
 
 def is_correct_info():
   clear_screen()
@@ -71,10 +25,8 @@ def is_correct_info():
 
   # Ask if load datasets
   while True:
-    need_to_load_month = input()
-
     try:
-      need_to_load_month = ask_for_confirmation(need_to_load_month)
+      need_to_load_month = ask_for_confirmation()
       break
     except Exception as error:
       error
@@ -133,10 +85,11 @@ def is_correct_info():
   while True:
     semester = input()
 
-    if(not is_valid_semester(semester)):
-      print(f'{semester} no es una opción válida, intenta con otra')
-    else:
+    try:
+      semester = Semester(semester)
       break
+    except InvalidSemesterException as error:
+      print(f'{semester} no es una opción válida, intenta con otra')
 
   # Show resume
   clear_screen()
@@ -150,16 +103,15 @@ def is_correct_info():
           f'Directorio base de archivos: {base_path}\n'
           f'Archivos a cargar: {files_to_load}\n'
           f'Año a crear: {year}\n'
-          f'Semestre(s) a crear: {semesters_names[ int(semester) - 1 ]}\n')
+          f'Semestre(s) a crear: {semester.get_name()}\n')
   else:
     print(f'Necesitas cargar datos: No\n'
           f'Año a crear: {year}\n'
-          f'Semestre(s) a crear: {semesters_names[ int(semester) - 1 ]}\n')
+          f'Semestre(s) a crear: {semester.get_name()}\n')
 
   while True:
     try:
-      confirmation = input()
-      confirmation = ask_for_confirmation(confirmation)
+      confirmation = ask_for_confirmation()
 
       if(confirmation):
         break

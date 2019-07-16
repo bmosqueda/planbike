@@ -4,10 +4,11 @@ import time
 from datetime import datetime
 import os
 from enum import IntFlag
+import re 
 
 sys.path.append(config.UTILS_PATH)
 sys.path.append(config.MODELS_PATH)
-
+from date_to_mysql_format import date_to_mysql_format
 from validator import is_int
 # from database import Database
 # from bicycle_trips import BicycleTrip
@@ -35,13 +36,5 @@ obj = {
   "Bici": "45ss",
   "Ciclo_Estacion_Arribo": 22.23
 }
-validator = Validator(rules)
-class Colors(IntFlag):
-  BLUE = 1
-  RED = 2
 
-
-print(Colors.BLUE == 1)
-print(Colors.BLUE.name == 'blue')
-print(Colors.BLUE)
-print(Colors.RED)
+print(date_to_mysql_format('1*1*10'))

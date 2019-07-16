@@ -1,5 +1,8 @@
 import re
 
+def is_valid_year(year):
+  return is_int(year) and int(year) >= 2010 and int(year) < 2100
+  
 def is_number(num):
   if(num is None):
     return True
