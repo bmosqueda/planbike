@@ -5,11 +5,11 @@ import os
 sys.path.append(config.UTILS_PATH)
 sys.path.append(config.MODELS_PATH)
 
-from validator import is_int, is_valid_year
-from tableau_dataset_creator import TableauDatasetCreator
-from csv_month_loader import CSVMonthLoader
 from semester import Semester, InvalidSemesterException
+from validator import is_int, is_valid_year
 from miscellaneous import clear_screen, ask_for_confirmation
+from csv_month_loader import CSVMonthLoader
+from tableau_dataset_creator import TableauDatasetCreator
 
 data_loader = CSVMonthLoader()
 
@@ -47,7 +47,7 @@ def is_correct_info():
         print('La ruta proporcionada no es un directorio, intenta nuevamente')
     
     clear_screen()
-    print('Escribe el nombre de los archivos que quieres cargar. Para terminar escribe X')
+    print('Escribe el nombre de los archivos que quieres cargar.\nPara terminar escribe X')
     
     # Ask files names
     while True:
@@ -139,12 +139,12 @@ def is_correct_info():
 
     print(f'Tabla base "{dataset_creator.base_table}" creada')
 
-    if(is_first_semester(semester) or are_both_semesters(semester)):
+    if(semester.is_first() or semester.are_both()):
       dataset_creator.create_first_semester_table()
 
       print(f'Tabla del primer semestre "{dataset_creator.first_semester_table}" creada')
     
-    if(is_second_semester(semester) or are_both_semesters(semester)):
+    if(semester.is_second() or semester.are_both()):
       dataset_creator.create_second_semester_table()
 
       print(f'Tabla del segundo semestre "{dataset_creator.second_semester_table}" creada')

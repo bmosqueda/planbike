@@ -2,7 +2,7 @@ import json
 from os import path 
 
 config = None
-stage = 'production'
+stage = 'development'
 
 with open('config.json') as json_file:  
   config = json.load(json_file)
@@ -11,7 +11,7 @@ with open('config.json') as json_file:
 BASE_PATH = config[ "basePath" ]
 UTILS_PATH = path.join(BASE_PATH, 'utils')
 MODELS_PATH = path.join(BASE_PATH, 'models')
-ERRORS_PATH = path.join(BASE_PATH, 'erros')
+ERRORS_PATH = path.join(BASE_PATH, 'errors')
 
 database = {
   'host': config[ 'host' ],
