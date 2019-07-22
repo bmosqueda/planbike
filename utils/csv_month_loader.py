@@ -2,6 +2,7 @@ import csv
 import os.path
 import json
 import sys
+import time
 from os.path import isfile
 
 from config import UTILS_PATH, MODELS_PATH, ERRORS_PATH
@@ -11,6 +12,7 @@ sys.path.append(MODELS_PATH)
 
 from validator import Validator, ValidationException
 from bicycle_trips import BicycleTrip
+from miscellaneous import get_elapsed_time
 from date_to_mysql_format import date_to_mysql_format, DateFormatException
 
 bicycle_controller = BicycleTrip()
@@ -48,6 +50,7 @@ class CSVMonthLoader:
       return 0
 
     print(f'*** Cargando {os.path.basename(month_file_name)} ***')
+    start_time = time.time()
 
     with open(month_file_name) as csv_file:
       csv_reader = csv.reader(csv_file, delimiter = ',')
@@ -101,7 +104,10 @@ class CSVMonthLoader:
       if(len(data) > 0):
         bicycle_controller.insert_many_from_csv(data)
 
-    print(f'Registros cargados correctamente: {line_count - len(bad_lines)}')
+    print(
+      f'Se cargaron correctamente: {line_count - len(bad_lines)} registros '
+      f'en {get_elapsed_time(start_time)} segundos'
+    )
 
     if(len(bad_lines) > 0):
       incorrect_records_file = os.path.join(ERRORS_PATH, 'errors-' + os.path.basename(month_file_name))

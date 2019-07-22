@@ -1,13 +1,14 @@
 import sys
 import config
 import os
+import time
 
 sys.path.append(config.UTILS_PATH)
 sys.path.append(config.MODELS_PATH)
 
 from semester import Semester, InvalidSemesterException
 from validator import is_int, is_valid_year
-from miscellaneous import clear_screen, ask_for_confirmation
+from miscellaneous import clear_screen, ask_for_confirmation, get_elapsed_time
 from csv_month_loader import CSVMonthLoader
 from tableau_dataset_creator import TableauDatasetCreator
 
@@ -122,6 +123,8 @@ def is_correct_info():
     except Exception as error:
       error
   
+  start_time = time.time()
+
   if(need_to_load_month):
     clear_screen()
     print('Cargando registros...')
@@ -134,22 +137,24 @@ def is_correct_info():
 
   try:
     dataset_creator = TableauDatasetCreator(year)
-    
+    tables_taken_time = time.time()
     dataset_creator.create_base_table()
 
-    print(f'Tabla base "{dataset_creator.base_table}" creada')
+    print(f'Tabla base "{dataset_creator.base_table}" creada en {get_elapsed_time(tables_taken_time)} segundos')
 
     if(semester.is_first() or semester.are_both()):
+      tables_taken_time = time.time()
       dataset_creator.create_first_semester_table()
 
-      print(f'Tabla del primer semestre "{dataset_creator.first_semester_table}" creada')
+      print(f'Tabla del primer semestre "{dataset_creator.first_semester_table}" creada en {get_elapsed_time(tables_taken_time)} segundos')
     
     if(semester.is_second() or semester.are_both()):
+      tables_taken_time = time.time()
       dataset_creator.create_second_semester_table()
 
-      print(f'Tabla del segundo semestre "{dataset_creator.second_semester_table}" creada')
+      print(f'Tabla del segundo semestre "{dataset_creator.second_semester_table}" creada en {get_elapsed_time(tables_taken_time)} segundos')
 
-    print('\n******* Se terminaron de crear correctamente las tablas *******')
+    print(f'\n******* Se terminaron de crear correctamente las tablas, tiempo total: {get_elapsed_time(start_time)} segundos *******')
   except Exception as error:
     print('Error al crear las tablas')
     print(error)

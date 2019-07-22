@@ -1,4 +1,5 @@
 import os
+import time
 
 def clear_screen(): 
   if(os.name == 'posix'):
@@ -16,3 +17,6 @@ def ask_for_confirmation():
     raise Exception('Not valid confirmation option')
   else:
     return confirmation == 's'
+
+def get_elapsed_time(start_time):
+  return round(time.time() - start_time, 2)

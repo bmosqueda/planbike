@@ -16,7 +16,7 @@ if(len(sys.argv) == 1):
 else:
   start = time.time()
 
-  for file_name in sys.argv[1:]:
+  for file_name in sys.argv[ 1: ]:
     data_loader.load(file_name)
 
   print(f'Tiempo total tomando en la carga de registros: {time.time() - start}')

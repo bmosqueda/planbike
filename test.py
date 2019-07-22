@@ -37,4 +37,5 @@ obj = {
   "Ciclo_Estacion_Arribo": 22.23
 }
 
-print(date_to_mysql_format('1*1*10'))
+print(round(time.time(), 2))
+print(round(time.time()))
